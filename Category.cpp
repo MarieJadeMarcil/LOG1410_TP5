@@ -5,89 +5,89 @@
 
 int Category::m_indent = 0;
 
-Category::Category(std::string name)
-	: AbsCatalogComponent(name)
+Category::Category(std::string name) : AbsCatalogComponent(name)
 {
 }
 
-Category::Category(const Category & mdd)
-	: AbsCatalogComponent(mdd.m_name)
+Category::Category(const Category& mdd)
+    : AbsCatalogComponent(mdd.m_name)
 {
-	// � compl�ter pour copier tous les �l�ments du catalogue contenus dans la cat�gorie
-	//Done
-	m_indent = mdd.m_indent;	
-	m_products = mdd.m_products;
-
+    for (auto it = mdd.cbegin(); it != mdd.cend(); it++)
+    {
+        addCatalogComponent(*it);
+    }
 }
 
-Category * Category::clone(void) const
+Category* Category::clone(void) const
 {
-	// À compléter pour construire un nouvel objet Category en appelant le constructeur de copie
-	//Done
-	return new Category(*this);
-	
+    return new Category(*this);
 }
 
-AbsCatalogComponent& Category::addCatalogComponent(const AbsCatalogComponent & member)
+AbsCatalogComponent& Category::addCatalogComponent(const AbsCatalogComponent& member)
 {
-	// � ça retourne la référence d'une copie de l'opération qui est dans compl�ter pour construire par clonage une copie de l'objet re�u en param�tre
-	// et l'ins�rer dans le conteneur de produits. On retourne une r�f�rence � l'objet
-	// qui vient d'�tre ins�r� dans le conteneur.
-	member = member.clone();
-	m_products.push_back(std::make_unique<AbsCatalogComponent>(member));
-	return member; // � remplacer 
+    m_products.push_back(std::make_unique<Category>(member.getName()));
+    return *m_products.back();
 }
 
 CatalogComponentIterator Category::begin()
 {
-	return m_products.begin();
+    return m_products.begin();
 }
 
 CatalogComponentIterator_const Category::cbegin() const
 {
-	return m_products.cbegin();
+    return m_products.cbegin();
 }
 
 CatalogComponentIterator_const Category::cend() const
 {
-	return m_products.cend();
+    return m_products.cend();
 }
 
 CatalogComponentIterator Category::end()
 {
-	return m_products.end();
+    return m_products.end();
 }
 
 void Category::deleteCatalogComponent(CatalogComponentIterator_const child)
 {
-	// � compl�ter pour �liminer de la cat�gorie l'�l�ment auquel r�f�re l'it�rateur
+    m_products.erase(child);
 }
 
 void Category::deleteAllComponents(void)
 {
-	// � compl�ter pour �liminer tous les �l�ments de la cat�gorie
+    m_products.clear();
 }
 
 const AbsProduct* Category::findProduct(std::string productName) const
 {
-	// � compl�ter pour it�rer sur les �l�ments contenus dans la cat�gorie � la recherche d'un produit
-	// portant le nom re�u en argument. Si aucun produit n'est trouv� on retourne nullptr
-	const AbsProduct* foundProduct = nullptr;
+    const AbsProduct* foundProduct = nullptr;
 
-	// � compl�ter
-
-	return foundProduct;
+    for (auto it = cbegin(); it != cend(); it++)
+    {
+        foundProduct = it->findProduct(productName);
+    }
+    return foundProduct;
 }
 
-std::ostream & Category::printToStream(std::ostream & o) const
+std::ostream& Category::printToStream(std::ostream& o) const
 {
-	// � compl�ter pour imprimer sur un stream une cat�gorie et ses produits
-	return o;
+    o << "Category: " << m_name << std::endl;
+    
+    m_indent++;
+    for (auto it = cbegin(); it != cend(); it++)
+    {
+        indent(o);
+        o << *it;
+    }
+    m_indent--;
+
+    return o;
 }
 
-std::ostream & Category::indent(std::ostream & o) const
+std::ostream& Category::indent(std::ostream& o) const
 {
-	for (int i = 0; i < m_indent; ++i)
-		o << '\t';
-	return o;
+    for (int i = 0; i < m_indent; ++i)
+        o << '\t';
+    return o;
 }
